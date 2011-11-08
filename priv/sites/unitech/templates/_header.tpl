@@ -1,4 +1,4 @@
-<header>
+<header class="container">
   <nav>
     <ul>
       <li><a href="#">Home</a></li>
