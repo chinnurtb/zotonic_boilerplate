@@ -1,19 +1,6 @@
-#!/bin/bash
-#
-# Copyright 2009 Marc Worrell
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
- 
+#!/bin/bash 
+
+## == USAGE ======================================== #
 ##
 ## usage zotonic.sh {debug|start|stop|restart}
 ##
@@ -25,42 +12,72 @@
 ## /home/zotonic/zotonic/...                        -- the zotonic code
 ## /home/zotonic/zotonic/priv/sites/default/...     -- your site and uploaded files go here
 
-# Change this to your base directory
-BASE=/home/zotonic
+# == PROJECT BASE ======================================== #
 
-# Change this to the complete path to zotonic.sh (this script)
-ZOTONIC_SH=$BASE/zotonic.sh
+BASE=/Users/pbdigital/Sites/zotonic_boilerplate/
 
-# Change this to the directory where you have unpacked zotonic
-# IMPORTANT: this directory must be called zotonic or zotonic-x.y where x.y is the version number.
+
+# == SH ======================================== #
+
+ZOTONIC_SH=$BASE/zotonic/zotonic.sh
+
+
+# == PROJECT PATH ======================================== #
+#
+# @important This directory must be called zotonic or zotonic-x.y where x.y is the version number.
+
 ZOTONIC=$BASE/zotonic
 
-# Change this to point to the erlang vm
-ERL="/usr/local/bin/erl"
 
-# The include path for the erlang vm, add when needed for your application.
+# == HOSTNAME ======================================== #
+#
+# @ex ERL="/usr/local/bin/erl"
+
+ERL="/Users/pbdigital/Developer/Cellar/erlang/R14B03/bin/erl"
+
+
+# == VM ======================================== #
+
 PA="$ZOTONIC/ebin $ZOTONIC/deps/*/ebin $ZOTONIC/modules/*/deps/*/ebin $ZOTONIC/priv/modules/*/deps/*/ebin $ZOTONIC/priv/sites/*/modules/*/deps/*/ebin"
 
-# The name of the Erlang node, this must be unique on your host.
+
+# == UNIQUE ERLANG NODE NAME ======================================== #
+
 SNAME=zotonic001
 
-# Set the hostname to the fully qualified domain name of your host, or leave it as localhost.
-# HOSTNAME=`hostname`
-# HOSTNAME=your.domain.com
+
+# == HOSTNAME ======================================== #
+#
+# @ex HOSTNAME=`hostname`
+# @ex HOSTNAME=your.domain.com
+
 HOSTNAME=localhost
 
-# The command used to restart zotonic when crashed, only used after a "zotonic.sh start"
+
+# == HEART COMMAND ======================================== #
+
 export HEART_COMMAND="$ZOTONIC_SH start"
 
-## The port and IP address zotonic will bind to (defaults to all ip addresses and port 8000)
+
+# == HOSTNAME ======================================== #
+#
+# @default 8000
+
 export ZOTONIC_IP=any
 export ZOTONIC_PORT=8000
 
-# The filename where zotonic writes its unix process Id to, for monitoring applications.
+
+# == UNIX PROC ID ======================================== #
+
 export ZOTONIC_PIDFILE=$BASE/zotonic.pid
+
+
+# == NULL ======================================== #
 
 pushd $ZOTONIC >/dev/null
 
+
+# == FUNCS ======================================== #
 
 function start() {
     echo  "Starting zotonic $SNAME"
@@ -79,6 +96,8 @@ function update() {
 }
 
 
+# == ... ======================================== #
+
 case $1 in
 
   start)
@@ -87,6 +106,41 @@ case $1 in
  
   debug)
     $ERL +P 10000000 +K true -pa $PA -name $SNAME@$HOSTNAME -boot start_sasl -s zotonic
+    ;;
+ 
+  stop)
+    stop
+    ;;
+ 
+  update)
+    update
+    ;;
+
+  shell)
+    $ERL -sname zotonic_shell -remsh $SNAME@$HOSTNAME
+    ;;
+
+  restart)
+    echo "Restarting zotonic"
+    stop
+    start
+    ;;
+
+  *)
+    echo "Usage: $0 {debug|start|stop|restart|update}"
+    exit 1
+esac
+
+popd > /dev/null
+ 
+exit 0
+
+
+# == START ======================================== #
+
+# ...
+
+ $PA -name $SNAME@$HOSTNAME -boot start_sasl -s zotonic
     ;;
  
   stop)
